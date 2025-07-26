@@ -2,39 +2,25 @@
 
 
 data/*
-!data/test
-!data/train
-!data/val
+!data/daisy
+data/daisy/*
+!data/daisy/.gitkeep
 
-data/test/*
-!data/test/NORMAL
-!data/test/PNEUMONIA
+!data/dandelion
+data/dandelion/*
+!data/dandelion/.gitkeep
 
-data/test/NORMAL/*
-!data/test/NORMAL/.gitkeep
+!data/rose
+data/rose/*
+!data/rose/.gitkeep
 
-data/test/PNEUMONIA/*
-!data/test/PNEUMONIA/.gitkeep
+!data/sunflower
+data/sunflower/*
+!data/sunflower/.gitkeep
 
-data/train/*
-!data/train/NORMAL
-!data/train/PNEUMONIA
-
-data/train/NORMAL/*
-!data/train/NORMAL/.gitkeep
-
-data/train/PNEUMONIA/*
-!data/train/PNEUMONIA/.gitkeep
-
-data/val/*
-!data/val/NORMAL
-!data/val/PNEUMONIA
-
-data/val/NORMAL/*
-!data/val/NORMAL/.gitkeep
-
-data/val/PNEUMONIA/*
-!data/val/PNEUMONIA/.gitkeep
+!data/tulip
+data/tulip/*
+!data/tulip/.gitkeep
 
 drafts/*
 !drafts/.gitkeep

@@ -1,13 +1,18 @@
-# Classificação de Pneumonia em Raios-X Torácicos utilizando CNNs 
+# Classificação de Flores com Redes Neurais Convolucionais (CNNs)
+
 ## Definição do Problema e Dataset
-A pneumonia é uma infecção pulmonar que afeta milhões de pessoas anualmente, especialmente crianças e idosos. O diagnóstico preciso por meio de raios-X torácicos é crucial para o tratamento adequado. Este projeto visa desenvolver um sistema de apoio diagnóstico automatizado utilizando Redes Neurais Convolucionais (CNNs) para classificar imagens de raios-X como "Normal" ou "Pneumonia".
 
-Para isso, utilizaremos o dataset [Chest X-Ray Images (Pneumonia)](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia/data) disponível no Kaggle. Nossos experimentos foram compostos por:
-- 5.856 imagens de raios-X torácicos (JPEG)
+A classificação de imagens é um desafio fundamental em visão computacional, com aplicações diversas, desde sistemas de reconhecimento de objetos até catalogação botânica. Este projeto tem como objetivo desenvolver um sistema de classificação automatizado utilizando **Redes Neurais Convolucionais (CNNs)** para identificar diferentes espécies de flores a partir de imagens.
 
-- 2 categorias: NORMAL (1.583 imagens) e PNEUMONIA (4,273 imagens)
+Para isso, utilizaremos o dataset **[Flowers Recognition](https://www.kaggle.com/datasets/alxmamaev/flowers-recognition)** disponível no Kaggle. Nossos experimentos são baseados nas seguintes características do dataset:
 
-- A classe PNEUMONIA está subdividida em bacteriana e viral, mas não trabalhamos com essa subclassificação
+  * **Tamanho:** 4.314 imagens de flores (JPEG).
+  * **Categorias:** 5 classes distintas de flores:
+      * `daisy` (margarida) com 764 imagens
+      * `dandelion` (dente-de-leão) com 1052 imagens
+      * `rose` (rosa) com 784 imagens
+      * `sunflower` (girassol) com 733 imagens
+      * `tulip` (tulipa) com 984 imagens
 
 ## Orientações para executar o projeto
 Para configurar e executar este projeto, siga os passos abaixo:
@@ -37,15 +42,11 @@ Certifique-se de que seus dados de imagem estão organizados no diretório `data
 
 ```
 data/
-├── test/
-│   ├── NORMAL/
-│   └── PNEUMONIA/
-├── train/
-│   ├── NORMAL/
-│   └── PNEUMONIA/
-└── val/
-    ├── NORMAL/
-    └── PNEUMONIA/
+├── daisy/
+├── dandelion/
+├── rose/
+├── sunflower/
+└── tulip/
 ```
 
 ### 3\. Execução do Projeto
