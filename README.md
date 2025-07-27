@@ -6,7 +6,7 @@ A classificação de imagens é um desafio fundamental em visão computacional, 
 
 Para isso, utilizaremos o dataset **[Flowers Recognition](https://www.kaggle.com/datasets/alxmamaev/flowers-recognition)** disponível no Kaggle. Nossos experimentos são baseados nas seguintes características do dataset:
 
-  * **Tamanho:** 4.314 imagens de flores (JPEG).
+  * **Tamanho:** 4.317 imagens de flores (JPEG).
   * **Categorias:** 5 classes distintas de flores:
       * `daisy` (margarida) com 764 imagens
       * `dandelion` (dente-de-leão) com 1052 imagens
