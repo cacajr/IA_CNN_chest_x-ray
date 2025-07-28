@@ -18,10 +18,16 @@ def build_simple_cnn(dropout_rate=0.5, learning_rate=1e-3, input_shape=(224, 224
     model = Sequential([
         Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
         MaxPooling2D(2, 2),
+
         Conv2D(64, (3, 3), activation='relu'),
         MaxPooling2D(2, 2),
+
         Conv2D(128, (3, 3), activation='relu'),
         MaxPooling2D(2, 2),
+
+        Conv2D(256, (3, 3), activation='relu'),
+        MaxPooling2D((2, 2)),
+        
         Flatten(),
         Dense(128, activation='relu'),
         Dropout(dropout_rate),

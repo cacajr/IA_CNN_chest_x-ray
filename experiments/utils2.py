@@ -98,7 +98,8 @@ def evaluate_model(model, X_test, y_test,y):
     f1 = f1_score(y_test, y_pred, average="macro")
     auc = roc_auc_score(y_test_bin, y_proba, average="macro", multi_class='ovr')
 
-    return acc, f1, auc
+
+    return acc, f1, auc, 
 
 def treinar_modelo_multiseed(X, y, model_builder, best_params, callbacks, seeds, epochs=10):
     metrics_list = []
@@ -121,13 +122,14 @@ def treinar_modelo_multiseed(X, y, model_builder, best_params, callbacks, seeds,
         )
 
         history = train_model(model, train_generator, val_generator, epochs, callbacks)
-        acc, f1, auc = evaluate_model(model, X_test, y_test,y)
+        acc, f1, auc, report, cf_matrix  = evaluate_model(model, X_test, y_test,y)
 
         print(f"Seed {seed} | ACC: {acc:.4f}, F1: {f1:.4f}, AUC: {auc:.4f}")
 
-        metrics_list.append((acc, f1, auc))
+        metrics_list.append((acc, f1, auc, report, cf_matrix))
         histories.append(history)
         models.append(model)
+
 
     return metrics_list, histories, models
 
