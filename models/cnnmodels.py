@@ -3,6 +3,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.applications import VGG16
+from tensorflow.keras.regularizers import l2
 
 def build_simple_cnn(dropout_rate=0.5, learning_rate=1e-3, input_shape=(224, 224, 3)):
     """
@@ -16,20 +17,18 @@ def build_simple_cnn(dropout_rate=0.5, learning_rate=1e-3, input_shape=(224, 224
     - model: Modelo Keras compilado.
     """
     model = Sequential([
-        Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+        
+        Conv2D(32, (3, 3), activation='relu',padding='same', input_shape=(224, 224, 3)),
         MaxPooling2D(2, 2),
 
-        Conv2D(64, (3, 3), activation='relu'),
+        Conv2D(64, (3, 3), activation='relu',padding='same'),
         MaxPooling2D(2, 2),
 
-        Conv2D(128, (3, 3), activation='relu'),
+        Conv2D(128, (3, 3), activation='relu',padding='same'),
         MaxPooling2D(2, 2),
-
-        Conv2D(256, (3, 3), activation='relu'),
-        MaxPooling2D((2, 2)),
         
         Flatten(),
-        Dense(256, activation='relu'),
+        Dense(128, activation='relu'),
         Dropout(dropout_rate),
         Dense(5, activation='softmax')
     ])
@@ -40,7 +39,7 @@ def build_simple_cnn(dropout_rate=0.5, learning_rate=1e-3, input_shape=(224, 224
 
 def build_tuned_cnn(dropout_rate=0.5, learning_rate=1e-3, input_shape=(224, 224, 3)):
     """
-    Constrói uma CNN com camadas de BatchNormalization e profundidade aumentada.
+    Constrói uma CNN com camadas de BatchNormalization.
 
     Parâmetros:
     - input_shape (tuple): Formato da imagem de entrada.
@@ -50,24 +49,20 @@ def build_tuned_cnn(dropout_rate=0.5, learning_rate=1e-3, input_shape=(224, 224,
     - model: Modelo Keras compilado.
     """
     model = Sequential([
-        Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
+        Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=input_shape),
         BatchNormalization(),
         MaxPooling2D((2, 2)),
 
-        Conv2D(64, (3, 3), activation='relu'),
+        Conv2D(64, (3, 3), activation='relu', padding='same'),
         BatchNormalization(),
         MaxPooling2D((2, 2)),
 
-        Conv2D(128, (3, 3), activation='relu'),
-        BatchNormalization(),
-        MaxPooling2D((2, 2)),
-
-        Conv2D(256, (3, 3), activation='relu'),
+        Conv2D(128, (3, 3), activation='relu', padding='same'),
         BatchNormalization(),
         MaxPooling2D((2, 2)),
 
         Flatten(),
-        Dense(256, activation='relu'),
+        Dense(128, activation='relu'),
         BatchNormalization(),
         Dropout(dropout_rate),
         Dense(5, activation='softmax')
