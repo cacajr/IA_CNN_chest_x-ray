@@ -4,6 +4,7 @@ import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 import tensorflow as tf
 from tensorflow.keras import backend as K
 from tensorflow.keras.preprocessing.image import load_img, img_to_array, ImageDataGenerator
@@ -346,22 +347,18 @@ def plot_multiclass_roc(y_true, y_score, classes, figsize=(10, 8)):
 def plot_history(history, title_prefix="Modelo"):
     """
     Plota a acurácia e o erro (loss) durante o treinamento.
-
-    Parâmetros:
-    - history: objeto retornado por model.fit()
-    - title_prefix: prefixo do título do gráfico
     """
-    acc = history.history.get('accuracy')
-    val_acc = history.history.get('val_accuracy')
-    loss = history.history.get('loss')
-    val_loss = history.history.get('val_loss')
+    acc = history.get('accuracy')
+    val_acc = history.get('val_accuracy')
+    loss = history.get('loss')
+    val_loss = history.get('val_loss')
     epochs = range(1, len(acc) + 1)
 
     plt.figure(figsize=(12, 5))
 
     plt.subplot(1, 2, 1)
-    plt.plot(epochs, acc, 'bo-', label='Acurácia Treino')
-    plt.plot(epochs, val_acc, 'ro-', label='Acurácia Validação')
+    plt.plot(epochs, acc, 'bo-', label='Acurácia Treino', markersize=2)
+    plt.plot(epochs, val_acc, 'ro-', label='Acurácia Validação', markersize=2)
     plt.title(f'{title_prefix} - Acurácia')
     plt.xlabel('Épocas')
     plt.ylabel('Acurácia')
@@ -369,8 +366,8 @@ def plot_history(history, title_prefix="Modelo"):
     plt.grid(True)
 
     plt.subplot(1, 2, 2)
-    plt.plot(epochs, loss, 'bo-', label='Loss Treino')
-    plt.plot(epochs, val_loss, 'ro-', label='Loss Validação')
+    plt.plot(epochs, loss, 'bo-', label='Loss Treino', markersize=2)
+    plt.plot(epochs, val_loss, 'ro-', label='Loss Validação', markersize=2)
     plt.title(f'{title_prefix} - Loss')
     plt.xlabel('Épocas')
     plt.ylabel('Loss')
@@ -379,6 +376,37 @@ def plot_history(history, title_prefix="Modelo"):
 
     plt.tight_layout()
     plt.show()
+    
+def plot_confusion_matrix_heatmap(y_true, y_pred, model_name, class_names=None):
+    """
+    Plota uma matriz de confusão como heatmap.
+
+    Parâmetros:
+    - y_true: rótulos verdadeiros
+    - y_pred: rótulos previstos
+    - class_names: lista com nomes das classes (opcional)
+    - model_name: nome do modelo para título
+    """
+    title = f"Matriz de Confusão - {model_name}"
+    cm = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(8, 6))
+
+    sns.heatmap(
+        cm, annot=True, fmt='d', cmap='Blues',
+        xticklabels=class_names if class_names is not None else "auto",
+        yticklabels=class_names if class_names is not None else "auto"
+    )
+
+    plt.xlabel("Previsto")
+    plt.ylabel("Real")
+    plt.title(title)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+# -----------------------
+# Encontrar Hiperparâmetros
+# -----------------------
 
 def kfold_search_hyperparameters(X, y, model_func, param_grid, k=4, random_state=7, output_json=True):
     """
@@ -459,3 +487,107 @@ def kfold_search_hyperparameters(X, y, model_func, param_grid, k=4, random_state
     print(f"Com F1 médio: {best_score:.4f}")
 
     return best_params, best_score
+
+def avaliar_modelo_base(model, seed, X, y):
+    X_train, X_test, y_train, y_test = split_dataset(X, y, seed=seed)
+    y_test_bin = label_binarize(y_test, classes=np.unique(y))
+    y_pred = np.argmax(model.predict(X_test), axis=1)
+    y_proba = model.predict(X_test)
+    return y_test, y_pred, y_proba, y_test_bin
+
+# -----------------------
+# Carregamento de modelos e métricas
+# -----------------------
+
+def salvar_resumo_metricas_modelos(
+    simple_metrics, simple_model_metrics,
+    tuned_metrics, tuned_model_metrics,
+    vgg_metrics, vgg16_model_metrics,
+    simple_idx, tuned_idx, vgg16_idx,
+    output_path="resumo_metricas_modelos.json"
+    ):
+    """
+    Gera e salva um resumo com as métricas médias e representativas dos modelos treinados.
+
+    Parâmetros:
+    - *_metrics: listas de métricas por seed (ex: [[acc, f1, auc], ...])
+    - *_model_metrics: métricas do modelo representativo (ex: [acc, f1, auc])
+    - *_idx: índice da seed escolhida como representativa
+    - output_path: nome do arquivo JSON de saída
+
+    Retorno:
+    - dicionário com os dados salvos
+    """
+    metricas = {
+        'mean_simple_metrics': np.mean(np.asarray(simple_metrics), axis=0).tolist(),
+        'model_simple_metrics': simple_model_metrics,
+        'mean_tuned_metrics': np.mean(np.asarray(tuned_metrics), axis=0).tolist(),
+        'model_tuned_metrics': tuned_model_metrics,
+        'mean_vgg16_metrics': np.mean(np.asarray(vgg_metrics), axis=0).tolist(),
+        'model_vgg16_metrics': vgg16_model_metrics,
+        'chosen_seeds': [simple_idx, tuned_idx, vgg16_idx]
+    }
+    with open(output_path, "w") as f:
+        json.dump(metricas, f, indent=4)
+
+def carregar_modelos_representativos(json_path="resumo_metricas_modelos.json"):
+    """
+    Carrega os modelos representativos e seus históricos (history) para simple, tuned e vgg16 com base no JSON de resumo.
+
+    Retorno:
+    - models: dicionário com os três modelos carregados
+    - histories: dicionário com os history dos modelos
+    - seeds: dicionário com os índices representativos usados
+    - paths: dicionário com os caminhos dos arquivos carregados
+    """
+    with open(json_path, "r") as f:
+        resumo = json.load(f)
+
+    # Ajustar índices (caso estejam baseados em 0 no JSON)
+    simple_idx = resumo['chosen_seeds'][0] +1
+    tuned_idx = resumo['chosen_seeds'][1] +1
+    vgg16_idx = resumo['chosen_seeds'][2] +1
+
+    # Caminhos para modelos
+    paths = {
+        "simple": f"simple_seed_{simple_idx}.keras",
+        "tuned": f"tuned_seed_{tuned_idx}.keras",
+        "vgg16": f"vgg16_seed_{vgg16_idx}.keras"
+    }
+
+    # Caminhos para históricos
+    history_paths = {
+        "simple": f"simple_seed_{simple_idx}.json",
+        "tuned": f"tuned_seed_{tuned_idx}.json",
+        "vgg16": f"vgg16_seed_{vgg16_idx}.json"
+    }
+
+    # Índices usados
+    seeds = {
+        "simple": simple_idx,
+        "tuned": tuned_idx,
+        "vgg16": vgg16_idx
+    }
+
+    # Carregar modelos
+    models = {}
+    for name, path in paths.items():
+        if os.path.exists(path):
+            models[name] = load_model(path)
+            print(f"Modelo '{name}' carregado de {path}")
+        else:
+            models[name] = None
+            print(f"Caminho do modelo não encontrado: {path}")
+
+    # Carregar históricos
+    histories = {}
+    for name, hist_path in history_paths.items():
+        if os.path.exists(hist_path):
+            with open(hist_path, "r") as f:
+                histories[name] = json.load(f)
+            print(f"Histórico '{name}' carregado de {hist_path}")
+        else:
+            histories[name] = None
+            print(f"Histórico não encontrado: {hist_path}")
+
+    return models, histories, seeds, paths
