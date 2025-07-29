@@ -29,7 +29,7 @@ def build_simple_cnn(dropout_rate=0.5, learning_rate=1e-3, input_shape=(224, 224
         MaxPooling2D((2, 2)),
         
         Flatten(),
-        Dense(128, activation='relu'),
+        Dense(256, activation='relu'),
         Dropout(dropout_rate),
         Dense(5, activation='softmax')
     ])
