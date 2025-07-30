@@ -157,7 +157,8 @@ def create_data_generators_robustness(X_test, y_test, batch_size):
         preprocessing_function=lambda img: add_salt_pepper_noise(img, amount=0.01)
     )
     datagen.fit(X_test)
-    test_generator = datagen.flow(X_test, y_test, batch_size=batch_size)
+    # Shuffle False para manter a ordem.
+    test_generator = datagen.flow(X_test, y_test, batch_size=batch_size, shuffle=False)
     return test_generator
 
 
@@ -236,7 +237,7 @@ def treinar_modelo_multiseed(X, y, model_builder, best_params, seeds, epochs=10,
 
         X_train, X_test, y_train, y_test = split_dataset(X, y, seed) # 80% treino, 20% teste
         X_train, X_val, y_train, y_val = split_validation(X_train, y_train, seed) # 20% de X_train para val
-        train_gen, val_gen = create_data_generators(X_train, X_val, X_test, y_val, best_params["batch_size"])
+        train_gen, val_gen = create_data_generators(X_train,y_train, X_val, y_val, best_params["batch_size"])
 
         model = model_builder(
             dropout_rate=best_params["dropout_rate"],
