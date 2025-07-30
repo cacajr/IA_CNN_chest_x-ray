@@ -454,6 +454,8 @@ def kfold_search_hyperparameters(X, y, model_func, param_grid, k=4, random_state
     """
     from sklearn.model_selection import KFold
 
+    X_t, _, y_t, _ = split_dataset(X, y, seed)
+
     kf = KFold(n_splits=k, shuffle=True, random_state=random_state)
     parameters_callbacks = [
         EarlyStopping(patience=10, restore_best_weights=True, monitor='val_loss')
@@ -470,8 +472,8 @@ def kfold_search_hyperparameters(X, y, model_func, param_grid, k=4, random_state
 
                 for fold, (train_idx, val_idx) in enumerate(kf.split(X)):
                     print(f"Fold {fold+1}/{k}")
-                    X_train, X_val = X[train_idx], X[val_idx]
-                    y_train, y_val = y[train_idx], y[val_idx]
+                    X_train, X_val = X_t[train_idx], X_t[val_idx]
+                    y_train, y_val = y_t[train_idx], y_t[val_idx]
 
                     model = model_func(dropout_rate=dropout, learning_rate=lr)
 
@@ -505,7 +507,7 @@ def kfold_search_hyperparameters(X, y, model_func, param_grid, k=4, random_state
                     }
 
                     if output_json:
-                        filename = f"{model_func.__name__}_best_params.json"
+                        filename = f"./params/{model_func.__name__}_best_params.json"
                         with open(filename, 'w') as f:
                             json.dump(best_params, f)
                         print(f"Novo melhor conjunto salvo em {filename}")
@@ -585,9 +587,9 @@ def carregar_modelos_representativos(json_path="resumo_metricas_modelos.json"):
 
     # Caminhos para históricos
     history_paths = {
-        "simple": f"simple_seed_{simple_idx}.json",
-        "tuned": f"tuned_seed_{tuned_idx}.json",
-        "vgg16": f"vgg16_seed_{vgg16_idx}.json"
+        "simple": f"./history/simple_seed_{simple_idx}.json",
+        "tuned": f"./history/tuned_seed_{tuned_idx}.json",
+        "vgg16": f"./history/vgg16_seed_{vgg16_idx}.json"
     }
 
     # Índices usados
