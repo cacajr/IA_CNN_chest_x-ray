@@ -63,6 +63,27 @@ def split_dataset(X, y, seed, test_size=0.2):
     """
     return train_test_split(X, y, test_size=test_size, stratify=y, random_state=seed)
 
+def split_validation(X_train, y_train, seed, val_size=0.2):
+    """
+    Divide o conjunto de treino em treino e validação de forma estratificada.
+
+    Parâmetros:
+    - X_train, y_train: dados já divididos com `split_dataset`
+    - val_size: proporção para validação 
+    - seed: random_state para reprodutibilidade
+
+    Retorno:
+    - X_train_final, X_val, y_train_final, y_val
+    """
+
+    X_train_final, X_val, y_train_final, y_val = train_test_split(
+        X_train, y_train,
+        test_size=val_size,
+        stratify=y_train,
+        random_state=seed
+    )
+    return X_train_final, X_val, y_train_final, y_val
+
 
 def add_salt_pepper_noise(image, amount=0.01, salt_vs_pepper=0.5):
     """
@@ -89,7 +110,7 @@ def add_salt_pepper_noise(image, amount=0.01, salt_vs_pepper=0.5):
     return noisy
 
 
-def create_data_generators(X_train, y_train, X_test, y_test, batch_size):
+def create_data_generators(X_train, y_train, X_val, y_val, batch_size):
     """
     Cria geradores de dados com data augmentation para treino e validação.
 
@@ -112,7 +133,7 @@ def create_data_generators(X_train, y_train, X_test, y_test, batch_size):
     datagen.fit(X_train)
 
     train_generator = datagen.flow(X_train, y_train, batch_size=batch_size)
-    val_generator = ImageDataGenerator().flow(X_test, y_test, batch_size=batch_size)
+    val_generator = ImageDataGenerator().flow(X_val, y_val, batch_size=batch_size)
     return train_generator, val_generator
 
 
@@ -209,8 +230,13 @@ def treinar_modelo_multiseed(X, y, model_builder, best_params, seeds, epochs=10,
         tf.random.set_seed(seed)
         np.random.seed(seed)
 
-        X_train, X_test, y_train, y_test = split_dataset(X, y, seed)
-        train_gen, val_gen = create_data_generators(X_train, y_train, X_test, y_test, best_params["batch_size"])
+        #Treinamento 64%
+        #Validação	16%
+        #Teste	    20%
+
+        X_train, X_test, y_train, y_test = split_dataset(X, y, seed) # 80% treino, 20% teste
+        X_train, X_val, y_train, y_val = split_validation(X_train, y_train, seed) # 20% de X_train para val
+        train_gen, val_gen = create_data_generators(X_train, X_val, X_test, y_val, best_params["batch_size"])
 
         model = model_builder(
             dropout_rate=best_params["dropout_rate"],
