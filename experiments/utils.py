@@ -257,7 +257,7 @@ def treinar_modelo_multiseed(X, y, model_builder, best_params, seeds, epochs=10,
             verbose=1
         )
 
-        with open(f'{model_name}_seed_{seed}.json', 'w') as f:
+        with open(f'./history/{model_name}_seed_{seed}.json', 'w') as f:
             json.dump(history.history, f)
 
         acc, f1, auc_score = evaluate_model(model, X_test, y_test, y)
@@ -479,9 +479,8 @@ def kfold_search_hyperparameters(X, y, model_func, param_grid, k=4, random_state
     - best_params: dicionário com melhores hiperparâmetros encontrados
     - best_score: F1 médio correspondente
     """
-    from sklearn.model_selection import KFold
 
-    X_t, _, y_t, _ = split_dataset(X, y, seed)
+    X_t, _, y_t, _ = split_dataset(X, y, random_state)
 
     kf = KFold(n_splits=k, shuffle=True, random_state=random_state)
     parameters_callbacks = [
