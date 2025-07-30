@@ -84,7 +84,7 @@ def build_model_vgg16(dropout_rate=0.5, learning_rate=1e-3, input_shape=(224,224
     Retorno:
     - model: Modelo Keras compilado.
     """
-    # Ajustar o backbone VGG16 para imagens 32x32
+    # Ajustar o backbone VGG16 para imagens 224x224
     vgg16 = VGG16(weights='imagenet', include_top=False, input_shape=input_shape)
 
     # Congelar as camadas convolucionais do VGG16
